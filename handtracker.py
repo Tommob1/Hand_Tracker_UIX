@@ -27,6 +27,13 @@ def is_fist(landmarks):
         return True
     return False
 
+def get_hand_center(landmarks):
+    x_coords = [landmark.x for landmark in landmarks]
+    y_coords = [landmark.y for landmark in landmarks]
+    center_x = sum(x_coords) / len(landmarks)
+    center_y = sum(y_coords) / len(landmarks)
+    return center_x, center_y
+
 cap = cv2.VideoCapture(0)
 hands = mphands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
 
@@ -77,20 +84,22 @@ while True:
 
                 dial_angle = current_angle - baseline_angle
                 dial_angle = (dial_angle + 180) % 360 - 180
-                center = (int(image.shape[1] * wrist.x), int(image.shape[0] * wrist.y))
+
+                center_x, center_y = get_hand_center(tracking_hand)
+                center = (int(image.shape[1] * center_x), int(image.shape[0] * center_y))
                 
                 # Draw virtual dial
-                cv2.circle(image, center, 100, (255, 0, 0), 2)
-                cv2.ellipse(image, center, (100, 100), -90, 0, dial_angle, (0, 255, 0), 5)
+                cv2.circle(image, center, 200, (255, 0, 0), 3)  # Thicker and vivid blue
+                cv2.ellipse(image, center, (200, 200), -90, 0, dial_angle, (0, 255, 0), 5)
                 
                 # Draw protractor
                 for i in range(0, 360, 10):
                     angle_rad = np.deg2rad(i)
-                    pt1 = (int(center[0] + 100 * np.cos(angle_rad)), int(center[1] + 100 * np.sin(angle_rad)))
-                    pt2 = (int(center[0] + 110 * np.cos(angle_rad)), int(center[1] + 110 * np.sin(angle_rad)))
-                    cv2.line(image, pt1, pt2, (255, 0, 0), 2)
+                    pt1 = (int(center[0] + 200 * np.cos(angle_rad)), int(center[1] + 200 * np.sin(angle_rad)))
+                    pt2 = (int(center[0] + 220 * np.cos(angle_rad)), int(center[1] + 220 * np.sin(angle_rad)))
+                    cv2.line(image, pt1, pt2, (255, 0, 0), 3)  # Thicker and vivid blue
                     if i % 30 == 0:
-                        pt3 = (int(center[0] + 130 * np.cos(angle_rad)), int(center[1] + 130 * np.sin(angle_rad)))
+                        pt3 = (int(center[0] + 250 * np.cos(angle_rad)), int(center[1] + 250 * np.sin(angle_rad)))
                         cv2.putText(image, str(i), pt3, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
                 cv2.putText(image, f'{int(dial_angle)}', (center[0], center[1] - 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 3, cv2.LINE_AA)
