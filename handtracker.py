@@ -78,7 +78,21 @@ while True:
                 dial_angle = current_angle - baseline_angle
                 dial_angle = (dial_angle + 180) % 360 - 180
                 center = (int(image.shape[1] * wrist.x), int(image.shape[0] * wrist.y))
-                cv2.ellipse(image, center, (50, 50), -90, 0, dial_angle, (255, 0, 0), 5)
+                
+                # Draw virtual dial
+                cv2.circle(image, center, 100, (255, 0, 0), 2)
+                cv2.ellipse(image, center, (100, 100), -90, 0, dial_angle, (0, 255, 0), 5)
+                
+                # Draw protractor
+                for i in range(0, 360, 10):
+                    angle_rad = np.deg2rad(i)
+                    pt1 = (int(center[0] + 100 * np.cos(angle_rad)), int(center[1] + 100 * np.sin(angle_rad)))
+                    pt2 = (int(center[0] + 110 * np.cos(angle_rad)), int(center[1] + 110 * np.sin(angle_rad)))
+                    cv2.line(image, pt1, pt2, (255, 0, 0), 2)
+                    if i % 30 == 0:
+                        pt3 = (int(center[0] + 130 * np.cos(angle_rad)), int(center[1] + 130 * np.sin(angle_rad)))
+                        cv2.putText(image, str(i), pt3, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
                 cv2.putText(image, f'{int(dial_angle)}', (center[0], center[1] - 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 3, cv2.LINE_AA)
                 print(f'Dial angle: {dial_angle}')
 
