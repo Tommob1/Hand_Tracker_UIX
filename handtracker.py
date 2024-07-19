@@ -88,16 +88,14 @@ while True:
                 center_x, center_y = get_hand_center(tracking_hand)
                 center = (int(image.shape[1] * center_x), int(image.shape[0] * center_y))
                 
-                # Draw virtual dial
-                cv2.circle(image, center, 200, (255, 0, 0), 3)  # Thicker and vivid blue
+                cv2.circle(image, center, 200, (255, 0, 0), 3)
                 cv2.ellipse(image, center, (200, 200), -90, 0, dial_angle, (0, 255, 0), 5)
                 
-                # Draw protractor
                 for i in range(0, 360, 10):
                     angle_rad = np.deg2rad(i)
                     pt1 = (int(center[0] + 200 * np.cos(angle_rad)), int(center[1] + 200 * np.sin(angle_rad)))
                     pt2 = (int(center[0] + 220 * np.cos(angle_rad)), int(center[1] + 220 * np.sin(angle_rad)))
-                    cv2.line(image, pt1, pt2, (255, 0, 0), 3)  # Thicker and vivid blue
+                    cv2.line(image, pt1, pt2, (255, 0, 0), 3)
                     if i % 30 == 0:
                         pt3 = (int(center[0] + 250 * np.cos(angle_rad)), int(center[1] + 250 * np.sin(angle_rad)))
                         cv2.putText(image, str(i), pt3, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
