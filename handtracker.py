@@ -7,25 +7,36 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mphands = mp.solutions.hands
 
 def is_fist(landmarks):
-    wrist = landmarks[mp.solutions.hands.HandLandmark.WRIST]
+    fingers_folded = 0
+    fingers = [
+        (mp.solutions.hands.HandLandmark.THUMB_TIP, mp.solutions.hands.HandLandmark.THUMB_IP, mp.solutions.hands.HandLandmark.THUMB_MCP),
+        (mp.solutions.hands.HandLandmark.INDEX_FINGER_TIP, mp.solutions.hands.HandLandmark.INDEX_FINGER_PIP, mp.solutions.hands.HandLandmark.INDEX_FINGER_MCP),
+        (mp.solutions.hands.HandLandmark.MIDDLE_FINGER_TIP, mp.solutions.hands.HandLandmark.MIDDLE_FINGER_PIP, mp.solutions.hands.HandLandmark.MIDDLE_FINGER_MCP),
+        (mp.solutions.hands.HandLandmark.RING_FINGER_TIP, mp.solutions.hands.HandLandmark.RING_FINGER_PIP, mp.solutions.hands.HandLandmark.RING_FINGER_MCP),
+        (mp.solutions.hands.HandLandmark.PINKY_TIP, mp.solutions.hands.HandLandmark.PINKY_PIP, mp.solutions.hands.HandLandmark.PINKY_MCP),
+    ]
+    
+    for tip_id, pip_id, mcp_id in fingers:
+        tip = landmarks[tip_id]
+        pip = landmarks[pip_id]
+        mcp = landmarks[mcp_id]
+        
+        # Check if the finger is folded by comparing y-coordinates
+        if tip.y > pip.y and pip.y > mcp.y:
+            fingers_folded += 1
+    
+    # For the thumb, check if it's folded across the palm
     thumb_tip = landmarks[mp.solutions.hands.HandLandmark.THUMB_TIP]
-    index_tip = landmarks[mp.solutions.hands.HandLandmark.INDEX_FINGER_TIP]
-    middle_tip = landmarks[mp.solutions.hands.HandLandmark.MIDDLE_FINGER_TIP]
-    ring_tip = landmarks[mp.solutions.hands.HandLandmark.RING_FINGER_TIP]
-    pinky_tip = landmarks[mp.solutions.hands.HandLandmark.PINKY_TIP]
-
-    def distance(point1, point2):
-        return np.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
-
-    d_thumb = distance(wrist, thumb_tip)
-    d_index = distance(wrist, index_tip)
-    d_middle = distance(wrist, middle_tip)
-    d_ring = distance(wrist, ring_tip)
-    d_pinky = distance(wrist, pinky_tip)
-
-    if d_thumb < 0.2 and d_index < 0.2 and d_middle < 0.2 and d_ring < 0.2 and d_pinky < 0.2:
+    index_mcp = landmarks[mp.solutions.hands.HandLandmark.INDEX_FINGER_MCP]
+    wrist = landmarks[mp.solutions.hands.HandLandmark.WRIST]
+    
+    if thumb_tip.x < wrist.x and thumb_tip.y > index_mcp.y:
+        fingers_folded += 1
+    
+    if fingers_folded == 5:
         return True
-    return False
+    else:
+        return False
 
 def get_hand_center(landmarks):
     x_coords = [landmark.x for landmark in landmarks]
