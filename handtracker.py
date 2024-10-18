@@ -20,12 +20,9 @@ def is_fist(landmarks):
         tip = landmarks[tip_id]
         pip = landmarks[pip_id]
         mcp = landmarks[mcp_id]
-        
-        # Check if the finger is folded by comparing y-coordinates
         if tip.y > pip.y and pip.y > mcp.y:
             fingers_folded += 1
     
-    # For the thumb, check if it's folded across the palm
     thumb_tip = landmarks[mp.solutions.hands.HandLandmark.THUMB_TIP]
     index_mcp = landmarks[mp.solutions.hands.HandLandmark.INDEX_FINGER_MCP]
     wrist = landmarks[mp.solutions.hands.HandLandmark.WRIST]
